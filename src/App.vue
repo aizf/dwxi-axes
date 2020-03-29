@@ -1,28 +1,26 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+      <ChartKeywordPath :width="'800px'" :height="'600px'" />
   </div>
 </template>
-
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
+import ChartKeywordPath from "./components/ChartKeywordPath.vue";
 export default {
-  name: 'App',
+  name: "app",
   components: {
-    HelloWorld
+    ChartKeywordPath
   }
-}
+};
 </script>
-
 <style>
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+  /* text-align: center; */
+  /* color: #2c3e50; */
+}
+.ChartKeywordPath {
+  border: red solid 1px;
 }
 </style>
