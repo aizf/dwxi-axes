@@ -2,7 +2,7 @@
   <svg :width="width" :height="height" class="ChartKeywordPath">
     <g :transform="`translate(25,25)`">
       <g class="keywordPath">
-        <g v-for="path in $_keywordPath" :key="path.index">
+        <g v-for="path in $_keywordPath" v-show="keywordPathStates[path.index]" :key="path.index">
           <path
             v-for="(coord,key) in path['part']"
             :d="generatePath(coord)"
@@ -34,6 +34,7 @@
           :x="val.x"
           :y="val.y"
           text-anchor="start"
+          @click="clickKeywords(key,keyword)"
           :key="keyword"
         >{{keyword}}</text>
         <text
@@ -89,8 +90,9 @@ export default {
           time3: "join",
           time4: "march",
           time5: "silent"
-        },
-      ]
+        }
+      ],
+      keywordPathStates: {}
     };
   },
   computed: {
@@ -121,7 +123,8 @@ export default {
           const keyword = this.chartData[key][path[key]];
           eachPath[key] = {
             x: keyword.x + hIndex * this.hPadding,
-            y: keyword.y
+            y: keyword.y,
+            keyword: path[key]
           };
         });
         _paths.push(eachPath);
@@ -154,6 +157,31 @@ export default {
         .linkHorizontal()
         .source(() => [d.x0, d.y0])
         .target(() => [d.x1, d.y1])();
+    },
+    clickKeywords(key, keyword) {
+      // 寻找所有经过这个关键词的路径
+      const pathsIndex = [];
+      this.$_keywordCoord.forEach(path => {
+        if (path[key].keyword === keyword) {
+          pathsIndex.push(path.index);
+        }
+      });
+      console.log(pathsIndex);
+
+      // 如果有任何已经显示的path，则将所有的都隐藏
+      let anyTrue = false;
+      for (let i = 0; i < pathsIndex.length; i++) {
+        if (this.keywordPathStates[pathsIndex[i]]) {
+          this.keywordPathStates[pathsIndex[i]] = false;
+          anyTrue = true;
+        }
+      }
+      // 如果path都是隐藏的，则将所有的都显示
+      if (anyTrue === false) {
+        for (let i = 0; i < pathsIndex.length; i++) {
+          this.keywordPathStates[pathsIndex[i]] = true;
+        }
+      }
     }
   },
   created() {
@@ -165,6 +193,16 @@ export default {
       .catch(err => {
         throw new Error("找不到data文件");
       });
+  },
+  watch: {
+    $_keywordPath: function(val) {
+      // $_keywordPath改变时更新keywordPathStates
+      const newStates = {};
+      val.forEach(d => (newStates[d.index] = false));
+      console.log(val);
+      // 用旧的覆盖新的，从而保留之前的显示状态
+      this.keywordPathStates = Object.assign(newStates, this.keywordPathStates);
+    }
   }
 };
 </script>
